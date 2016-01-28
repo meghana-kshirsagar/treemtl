@@ -39,9 +39,9 @@ U = U_new;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-imagesc(U_new);
-colormap(gray);
-pause;
+%imagesc(U_new);
+%colormap(gray);
+%pause;
 
 
 

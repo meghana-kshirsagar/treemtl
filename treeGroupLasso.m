@@ -1,5 +1,5 @@
 
-function [Wnew] = treeGroupLasso(W, Y, X, T, Tw, XX, XY)
+function [Wnew] = treeGroupLasso(W, Y, X, T, Tw, XX, XY, lambda)
 
 	% remove root node - last row
 	T = T(1:end-1,:);
@@ -30,7 +30,6 @@ function [Wnew] = treeGroupLasso(W, Y, X, T, Tw, XX, XY)
   option.maxiter=50;
   option.threshold=0;
   option.tol=1e-6;
-	lambda=0.01; % regularization parameter
   mu=0.01;
   L=L1+lambda^2*TauNorm/mu;
   [Wnew, obj, time] = accgrad(W, Y, X, lambda, T,  XX, XY, C, g_idx, L, mu, option);

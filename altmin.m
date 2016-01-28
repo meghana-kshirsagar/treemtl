@@ -43,15 +43,15 @@ for iter=1:opts.maxiter
 
 Wold=W;
 	% update W
-  W = treeGroupLasso(W, Y, X, T, [opts.rhoLeaf*ones(K,1); rho], XX, XY); % pad rhos with weights for leaves
+  W = treeGroupLasso(W, Y, X, T, [opts.rhoLeaf*ones(K,1); rho], XX, XY, opts.lambda); % pad rhos with weights for leaves
 
-%subplot(2,1,1);
-%imagesc(W');
-%subplot(2,1,2);
-%imagesc(U);
-%colormap(gray);
+subplot(2,1,1);
+imagesc(W');
+subplot(2,1,2);
+imagesc(U);
+colormap(gray);
 norm(W-Wold,'fro')
-%pause;
+pause;
 
 
 	% print objective
@@ -62,7 +62,7 @@ norm(W-Wold,'fro')
   end
 	treeReg = getTreeReg(Tnleaf, rho, U, W);
 	fprintf('Iter: %d  lsqerr: %f  treereg: %f   ',iter,obj(iter),treeReg);
-	obj(iter) = obj(iter) + treeReg;
+	obj(iter) = obj(iter) + opts.lambda*treeReg + opts.lambda*sum(sum(abs(W)));
 	fprintf('Obj: %f\n',obj(iter));
 	disp('----------------------------');
 end

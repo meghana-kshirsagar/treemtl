@@ -74,10 +74,11 @@ W0=W;
 % call altmin
 opts=[];
 opts.eta=0.01;
+opts.lambda=0.01;
 opts.maxiter=20;
 rho = 0.1*ones(Nnleaf,1);
 %rho = rand(Nnleaf,1);
-opts.rhoLeaf=1; % weights of leaves --- not used anywhere
+opts.rhoLeaf = 0.01; % weights of leaves, not used :-/
 [U W] = altmin(X, Y, T, Tnleaf, W, U, rho, opts);
 
 figure;
