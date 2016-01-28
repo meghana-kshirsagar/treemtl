@@ -21,7 +21,9 @@ function [Wnew] = treeGroupLasso(W, Y, X, T, Tw, XX, XY)
      Q(g_idx(v,1):g_idx(v,2))=Tw(v);
   end
 
-  C=sparse(1:SV, P, Q, SV, K);
+	% SV: number of paths to leaves from all inner nodes. 
+	% Each row of C is non-zero at the entry corresponding to the leaf it ends in
+  C=sparse(1:SV, P, Q, SV, K); 
 
   TauNorm=repmat(Tw, 1, K).*T;
   TauNorm=max(sum(TauNorm.^2));

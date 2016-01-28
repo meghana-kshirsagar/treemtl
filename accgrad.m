@@ -42,15 +42,19 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, lambda, T, XX, XY, C, g_id
     obj=zeros(1,maxiter);
     time=zeros(1,maxiter);
 
+  	% Each row of C is non-zero at the entry corresponding to the leaf it ends in.
+		% multiply by regularization parameter
     C=C*lambda;
     
-    %bw=zeros(J,K);    % maps to W in our notation: d x m (m=#tasks) -- we will pass this
+    %bw=zeros(J,K);    % maps to W in our notation: J x m (m=#tasks) -- we will pass this
     bx=bw;    
     theta=1;
     tic
     for iter=1:maxiter
-        %compute grad(f(w_k))
-        R=shrink(C*bw'/mu, g_idx); % C*bw': sum_|g| * d
+				% compute gradient
+				% C*bw'/mu : passed to shrinking op, see eq 3.7  (= lambda*w_v*B/mu)
+				% C: sum_|g|*K,    C*bw': sum_|g| * J
+        R=shrink(C*bw'/mu, g_idx); 
                 
 				for task=1:K
         	grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + R'*C(:,task); % Step-1 from paper

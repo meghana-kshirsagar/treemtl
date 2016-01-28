@@ -43,7 +43,7 @@ for iter=1:opts.maxiter
 
 Wold=W;
 	% update W
-  W = treeGroupLasso(W, Y, X, T, [opts.rhoLeaf*ones(K,1); rho], XX, XY); % pad rhos with weights for leaves
+  W = treeGroupLasso(W, Y, X, T, [opts.rhoLeaf*ones(K,1); rho], XX, XY); % pad rhos with weights for leaves - these won't be used actually
 
 %subplot(2,1,1);
 %imagesc(W');
