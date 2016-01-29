@@ -53,6 +53,16 @@ if strcmp(treeType,'cb')  % 'cb': complete binary
 	for clus=1:Tpa
 		U(clus,:)=(clusIdx==clus);
 	end
+	
+	%%%%%%%%%%%%%%%%%%%
+  %U = randn(Tpa, K);
+	%for t = 1:K
+	%  U(:,t) = projsplx(U(:,t));
+	%end
+  %[vals idx] = max(U);
+  %U = zeros(size(U));
+  %U(sub2ind(size(U), idx, [1:K])) = 1;
+	%%%%%%%%%%%%%%%%%%%
 
 	% init T based on current values of U
 	T(1:K, :) = eye(K,K);
@@ -74,11 +84,11 @@ W0=W;
 % call altmin
 opts=[];
 opts.eta=0.01;
-opts.lambda=0.01;
+opts.lambda=0.001;
 opts.maxiter=20;
-rho = 0.1*ones(Nnleaf,1);
+rho = 1*ones(Nnleaf,1);
 %rho = rand(Nnleaf,1);
-opts.rhoLeaf = 0.01; % weights of leaves, not used :-/
+opts.rhoLeaf = 1; % weights of leaves, not used :-/
 [U W] = altmin(X, Y, T, Tnleaf, W, U, rho, opts);
 
 figure;

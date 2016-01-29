@@ -1,4 +1,4 @@
-function [U_new] = updateU(W, U, Tnleaf, rho, eta)
+function [U_new] = updateU(W, U, Tnleaf, rho, eta, lambda)
 
 %T: sparse matrix encoding tree; rows: number of non-leaf nodes, cols: number of tasks
 %Tnleaf: rows: number of non-leaf nodes, cols: number of parents (|Tpa|)
@@ -7,10 +7,9 @@ function [U_new] = updateU(W, U, Tnleaf, rho, eta)
 Tpa = size(Tnleaf,2);
 
 Wsq = W.*W;
-%l12=sum(sqrt(sum(Wsq,2)))
 
 %%%%%% outer loop %%%%%%
-for iter=1:100
+for iter=1:50
 
 grad_u=zeros(size(U));
 % compute gradient w.r.t Upt.. note: 0 is a subgradient
@@ -23,7 +22,7 @@ for p = 1:Tpa
 			numer = sum(U(desc,t))*ones(J,1) .* Wsq(:,t);  % numer: Jx1 
 			numer(denom==0)=0;
 			denom(denom==0)=1;
-			grad_u(p,t) = grad_u(p,t) + rho(anc(aa)) * sum(numer ./ denom);
+			grad_u(p,t) = grad_u(p,t) + lambda* rho(anc(aa)) * sum(numer ./ denom);
 		end
 	end
 end

@@ -27,7 +27,7 @@ obj=zeros(1,opts.maxiter);
 for iter=1:opts.maxiter
 	
 	% update U
-	U = updateU(W, U, Tnleaf, rho, opts.eta);
+	U = updateU(W, U, Tnleaf, rho, opts.eta, opts.lambda);
 	disp('Finished updating U....');
 
 	% infer Tparents
