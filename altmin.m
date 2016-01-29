@@ -21,6 +21,7 @@ obj=zeros(1,opts.maxiter);
 for iter=1:opts.maxiter
 	
 	% update U
+	%save('workspace_before_updateU.mat','W','U','opts');
 	U = updateU(W, U, opts);
 	disp('Finished updating U....');
 
