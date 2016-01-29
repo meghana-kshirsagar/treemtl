@@ -1,4 +1,4 @@
-function [U_new] = updateU(W, U, opts)
+function [U] = updateU(W, U, opts)
 
 [J K] = size(W); % J: number of features, K: number of tasks
 Tpa = size(U,1);
@@ -31,6 +31,13 @@ for iter=1:opts.maxiter_U
     U = U_new;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% infer parents
+[vals idx] = max(U);
+U = zeros(size(U));
+U(sub2ind(size(U), idx, [1:K])) = 1;
+disp('Finished inferring new parents ....');
+
 
 %imagesc(U);
 %colormap(gray);

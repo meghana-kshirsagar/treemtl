@@ -23,13 +23,7 @@ for iter=1:opts.maxiter
 	% update U
 	%save('workspace_before_updateU.mat','W','U','opts');
 	U = updateU(W, U, opts);
-	disp('Finished updating U....');
-
-	% infer Tparents
-	[vals idx] = max(U);
-	U = zeros(size(U));
-	U(sub2ind(size(U), idx, [1:K])) = 1;
-	fprintf('Finished inferring parents ....\nNow calling GroupLasso to update Ws...\n');
+	disp('Finished updating U.... \n Now updating W...');
 
 	Wold=W;
 	% update W
