@@ -1,10 +1,8 @@
 
-function [Wnew] = sqGroupLasso(W, Y, X, XX, XY, U, lambda, rho)
-  option.maxiter=50;
-  option.threshold=0;
-  option.tol=1e-6;
-	option.eta=1e-5;
-	lambda=0.01; % regularization parameter
+function [Wnew] = sqGroupLasso(W, Y, X, XX, XY, U, opts)
+  opts.threshold=0;
+  opts.tol=1e-6;
+	opts.eta=1e-6;
 	g_idx = U;
-  [Wnew, obj, time] = accgrad(W, Y, X, XX, XY, g_idx, lambda, rho, option);
+  [Wnew, obj, time] = accgrad(W, Y, X, XX, XY, g_idx, opts);
 end

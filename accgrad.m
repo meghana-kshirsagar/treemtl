@@ -1,20 +1,12 @@
-function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, lambda, rho, option)
+function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
 
 %Y Centered Matrix: N by K
 %X Centered Matrix: N by J(p)
-%lam: lambda
 %C: note \sum_|g| by K -- contains weights of each treenode (i.e the weights from Tw)
-%g_idx: n_group by 2, group index
-%maxiter
+%g_idx: n_group by K, group index
 
+    K = length(X); % number of tasks
     [J] = size(X{1},2); % number of features
-    [K] = size(T,2); % number of tasks
-    
-    if isfield(option,'maxiter')
-        maxiter=option.maxiter;
-    else
-        maxiter=1000;
-    end
     
     if isfield(option, 'tol')
         tol=option.tol;
@@ -28,12 +20,14 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, lambda, rho
         threshold=1e-4;
     end  
     
+		maxiter = option.maxiter_W;
     obj=zeros(1,maxiter);
     time=zeros(1,maxiter);
 
     tic
-		C = 2*lambda*rho;
+		C = option.lambda*option.rho;
 		num_grps=size(g_idx,1);
+		grad_bw = zeros(J, K);
     for iter=1:maxiter
 				% compute gradient..  % bw: J x K, g_idx: num_grps x K
 				featnorm = zeros(num_grps,J);
@@ -45,24 +39,27 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, lambda, rho
 
 				for task=1:K
 					myg = find(g_idx(:,task)==1);
-        	grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + C(task)*bw(:,task)*sumf(myg) ./ featnorm(myg,:)'; 
+        	grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + 2*C(myg)*bw(:,task)*sumf(myg) ./ featnorm(myg,:)'; 
+					zeroes=find(featnorm(myg,:)==0);
+					grad_bw(zeroes,task)=0;
 				end
-        
+
         bv=bw-option.eta*grad_bw; % compute update
         
-        bx_new=sign(bv).*max(0,abs(bv)-repmat(rho',J,1)*lambda*option.eta); % soft-thresholding 
+        %bx_new=sign(bv).*max(0,abs(bv)-option.lambda*option.eta); % soft-thresholding 
+				bx_new=bv;
                 
 				for task=1:K
 					task_obj = sum(sum((Y{task} - X{task}*bx_new(:,task)).^2))/2;
         	obj(iter) = obj(iter) + task_obj;
 				end
-				obj(iter) = obj(iter) + cal2norm(bx_new, g_idx);
+				obj(iter) = obj(iter) + option.lambda*getGrpnorm(bx_new, g_idx, option.rho); % + option.lambda*sum(sum(abs(bx_new)));
         
         bw=bx_new;
         
         time(iter)=toc;
         
-        if (verbose && (iter==1 || mod(iter,1)==0))
+        if ((iter==1 || mod(iter,1)==0))
             fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
         end         
          

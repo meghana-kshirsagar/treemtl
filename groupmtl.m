@@ -35,20 +35,26 @@ clusIdx=kmeans(W',Tpa);
 for clus=1:Tpa
 	U(clus,:)=(clusIdx==clus);
 end
+U = randn(Tpa, K);
 
 subplot(2,1,1);
 imagesc(W');
 subplot(2,1,2);
 imagesc(U);
 colormap(gray);
+pause;
 W0=W;
 
 % call altmin
 opts=[];
-opts.eta=0.01;
-opts.maxiter=20;
-rho = 0.1*ones(Tpa,1);
-[U W] = altmin(X, Y, W, U, rho, opts);
+opts.maxiter=15;
+opts.lambda=0.001;
+opts.rho = 1*ones(Tpa,1);
+% inner params
+opts.eta_U=0.01;
+opts.maxiter_U=50;
+opts.maxiter_W=100;
+[U W] = altmin(X, Y, W, U, opts);
 
 figure;
 subplot(2,1,1);
