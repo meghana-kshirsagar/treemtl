@@ -54,7 +54,7 @@ opts.lambda=0.001;
 opts.rho = 1*ones(Tpa,1);
 opts.norm = 'l2';
 % inner params
-opts.eta_U=0.03;
+opts.eta_U=0.001;
 opts.maxiter_U=50;
 opts.maxiter_W=50;
 [U W] = altmin(X, Y, W, U, opts);

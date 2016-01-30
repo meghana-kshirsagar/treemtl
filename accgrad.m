@@ -35,7 +35,7 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
 				% compute gradient..  % bw: J x K, g_idx: num_grps x K
 				featnorm = zeros(num_grps,J);
 				for g=1:num_grps
-					gbw = (bw*g_idx(g,:)');
+					gbw = (bw*diag(g_idx(g,:)));
 					featnorm(g,:) = sqrt(sum(gbw.^2,2));
 				end
 				sumf = sum(featnorm,2); % size: num_grps x 1

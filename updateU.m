@@ -14,15 +14,15 @@ for iter=1:opts.maxiter_U
     for p = 1:Tpa
     		denom = sqrt(sum(power(repmat(U(p,:),J,1).*W, 2), 2));  % denom: Jx1
     		for t=1:K
-    			numer =  U(p,t)*ones(J,1) .* Wsq(:,t);  % numer: Jx1 
+    			numer = Wsq(:,t);  % numer: Jx1 
     			numer(denom==0)=0;
     			denom(denom==0)=1;
     			grad_u(p,t) = sum(numer ./ denom);
     		end
 				if opts.norm == 'l1'
-	    		grad_u(p,:) = grad_u(p,:) * opts.lambda * opts.rho(p);
+	    		grad_u(p,:) = grad_u(p,:) * opts.rho(p);
 				else
-	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.lambda * getGrpnorm(W,U(p,:),opts.rho(p),'l1');
+	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.rho(p) * getGrpnorm(W,U(p,:),1,'l1');
 				end
     end
     
@@ -36,20 +36,16 @@ for iter=1:opts.maxiter_U
     U = U_new;
 
 		% print R(U)
-		R = 0;
-    for p = 1:Tpa
-			R = R + getGrpnorm(W,U_new(p,:),opts.rho(p),opts.norm);
-		end
-		fprintf('R(U): %f\n',R);
-
-
+		R(iter) = getGrpnorm(W,U,opts.rho(1:Tpa),opts.norm);
+		%fprintf('R(U): %f\n',R);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-imagesc(U);
-colormap(gray);
-pause;
+%imagesc(U);
+%colormap(gray);
+%pause;
 
+plot([1:opts.maxiter_U],R);
 
 % infer parents
 [vals idx] = max(U);
@@ -59,8 +55,8 @@ disp('Finished inferring new parents ....');
 
 norm(U-Uold,'fro')
 
-imagesc(U);
-colormap(gray);
-pause;
+%imagesc(U);
+%colormap(gray);
+%pause;
 
 

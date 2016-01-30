@@ -23,7 +23,7 @@ for iter=1:opts.maxiter
 	% update U
 	%save('workspace_good.mat','U','W','opts');
 	U = updateU(W, U, opts);
-	disp('Finished updating U.... \n Now updating W...');
+	fprintf('Finished updating U.... \n Now updating W...');
 
 	Wold=W;
 	% update W
@@ -31,11 +31,11 @@ for iter=1:opts.maxiter
 
 	%subplot(2,1,1);
 	%imagesc(W');
-	%subplot(2,1,2);
-	%imagesc(U);
-	%colormap(gray);
+	subplot(3,3,iter);
+	imagesc(U);
+	colormap(gray);
 	norm(W-Wold,'fro')
-	%pause;
+	pause;
 
 	% print objective
   for task=1:K
