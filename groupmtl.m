@@ -21,6 +21,7 @@ for t=1:K
 	%W(:,t) = X{t} \ Y{t};
 	W(:,t) = ridge(Y{t}, X{t}, 1);
 end
+%load('synthetic_data/32tasks_2perclus_identical/synth_W.mat');
 disp('Finished centering data, initializing single task Ws..');
 
 U = [];
@@ -36,6 +37,7 @@ for clus=1:Tpa
 	U(clus,:)=(clusIdx==clus);
 end
 U = randn(Tpa, K);
+%U = 1/K*ones(Tpa, K);
 
 subplot(2,1,1);
 imagesc(W');
@@ -47,19 +49,20 @@ W0=W;
 
 % call altmin
 opts=[];
-opts.maxiter=15;
+opts.maxiter=8;
 opts.lambda=0.001;
 opts.rho = 1*ones(Tpa,1);
+opts.norm = 'l2';
 % inner params
-opts.eta_U=0.01;
+opts.eta_U=0.03;
 opts.maxiter_U=50;
-opts.maxiter_W=100;
+opts.maxiter_W=50;
 [U W] = altmin(X, Y, W, U, opts);
 
 figure;
-subplot(2,1,1);
-imagesc(W');
-subplot(2,1,2);
+%subplot(2,1,1);
+%imagesc(W');
+%subplot(2,1,2);
 imagesc(U);
 colormap(gray);
 norm(W-W0,'fro')

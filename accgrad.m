@@ -25,7 +25,10 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
     time=zeros(1,maxiter);
 
     tic
-		C = option.lambda*option.rho;
+		lambda = option.lambda;
+		rho = option.rho;
+		eta = option.eta;
+		C = lambda*rho;
 		num_grps=size(g_idx,1);
 		grad_bw = zeros(J, K);
     for iter=1:maxiter
@@ -39,21 +42,25 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
 
 				for task=1:K
 					myg = find(g_idx(:,task)==1);
-        	grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + 2*C(myg)*bw(:,task)*sumf(myg) ./ featnorm(myg,:)'; 
+					if option.norm == 'l1'
+	        	grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + C(myg)*bw(:,task) ./ featnorm(myg,:)'; 
+					else
+        		grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + 2*C(myg)*bw(:,task)*sumf(myg) ./ featnorm(myg,:)'; 
+					end
 					zeroes=find(featnorm(myg,:)==0);
 					grad_bw(zeroes,task)=0;
 				end
 
-        bv=bw-option.eta*grad_bw; % compute update
+        bv=bw-eta*grad_bw; % compute update
         
-        %bx_new=sign(bv).*max(0,abs(bv)-option.lambda*option.eta); % soft-thresholding 
+        %bx_new=sign(bv).*max(0,abs(bv)-lambda*eta); % soft-thresholding 
 				bx_new=bv;
                 
 				for task=1:K
 					task_obj = sum(sum((Y{task} - X{task}*bx_new(:,task)).^2))/2;
         	obj(iter) = obj(iter) + task_obj;
 				end
-				obj(iter) = obj(iter) + option.lambda*getGrpnorm(bx_new, g_idx, option.rho); % + option.lambda*sum(sum(abs(bx_new)));
+				obj(iter) = obj(iter) + lambda*getGrpnorm(bx_new, g_idx, rho, option.norm); % + lambda*sum(sum(abs(bx_new)));
         
         bw=bx_new;
         

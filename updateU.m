@@ -5,6 +5,7 @@ Tpa = size(U,1);
 
 Wsq = W.^2;
 eta = opts.eta_U;
+Uold = U;
 
 %%%%%% outer loop %%%%%%
 for iter=1:opts.maxiter_U
@@ -18,7 +19,11 @@ for iter=1:opts.maxiter_U
     			denom(denom==0)=1;
     			grad_u(p,t) = sum(numer ./ denom);
     		end
-    		grad_u(p,:) = grad_u(p,:) * 2 * opts.lambda * getGrpnorm(W,U(p,:),opts.rho(p));
+				if opts.norm == 'l1'
+	    		grad_u(p,:) = grad_u(p,:) * opts.lambda * opts.rho(p);
+				else
+	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.lambda * getGrpnorm(W,U(p,:),opts.rho(p),'l1');
+				end
     end
     
     U_new = U - eta*grad_u;
@@ -29,8 +34,22 @@ for iter=1:opts.maxiter_U
     end
     
     U = U_new;
+
+		% print R(U)
+		R = 0;
+    for p = 1:Tpa
+			R = R + getGrpnorm(W,U_new(p,:),opts.rho(p),opts.norm);
+		end
+		fprintf('R(U): %f\n',R);
+
+
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+imagesc(U);
+colormap(gray);
+pause;
+
 
 % infer parents
 [vals idx] = max(U);
@@ -38,8 +57,10 @@ U = zeros(size(U));
 U(sub2ind(size(U), idx, [1:K])) = 1;
 disp('Finished inferring new parents ....');
 
+norm(U-Uold,'fro')
 
-%imagesc(U);
-%colormap(gray);
-%pause;
+imagesc(U);
+colormap(gray);
+pause;
+
 

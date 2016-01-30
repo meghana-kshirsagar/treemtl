@@ -16,12 +16,12 @@ for task=1:K
   XY{task} = X{task}'*Y{task};
 end
 
-%figure;
+figure;
 obj=zeros(1,opts.maxiter);
 for iter=1:opts.maxiter
 	
 	% update U
-	%save('workspace_before_updateU.mat','W','U','opts');
+	%save('workspace_good.mat','U','W','opts');
 	U = updateU(W, U, opts);
 	disp('Finished updating U.... \n Now updating W...');
 
@@ -39,13 +39,12 @@ for iter=1:opts.maxiter
 
 	% print objective
   for task=1:K
-    task_obj = sum(sum((Y{task} - X{task}*W(:,task)).^2))/2;
+    task_obj(task) = sum(sum((Y{task} - X{task}*W(:,task)).^2))/2;
 		%fprintf('[Task %d] sq.err: %f\n',task,task_obj);
-    obj(iter) = obj(iter) + task_obj;
   end
-	grpnorm = getGrpnorm(W, U, opts.rho);
-	fprintf('Iter: %d  lsqerr: %f  reg: %f   ',iter,obj(iter),opts.lambda*grpnorm);
-	obj(iter) = obj(iter) + opts.lambda*grpnorm; % + opts.lambda*sum(sum(abs(W)));
+	grpnorm = getGrpnorm(W, U, opts.rho, opts.norm);
+	fprintf('Iter: %d  lsqerr: %f  reg: %f   ',iter,sum(task_obj),opts.lambda*grpnorm);
+	obj(iter) = sum(task_obj) + opts.lambda*grpnorm; % + opts.lambda*sum(sum(abs(W)));
 	fprintf('Obj: %f\n',obj(iter));
 	disp('----------------------------');
 end
