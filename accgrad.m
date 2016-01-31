@@ -66,9 +66,9 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
         
         time(iter)=toc;
         
-        if ((iter==1 || mod(iter,1)==0))
-            fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
-        end         
+        %if ((iter==1 || mod(iter,1)==0))
+        %    fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
+        %end         
          
         if (iter>10 && (abs(obj(iter)-obj(iter-1))/abs(obj(iter-1))<tol)) %increasing
             break;
@@ -80,7 +80,9 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
     
     bw(abs(bw)<threshold) =0;
     Beta=bw;
-    obj=obj(1:iter);
-    time=time(1:iter);
     
+		plot([1:maxiter],obj);
+		pause;
+
+
 end

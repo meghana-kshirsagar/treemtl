@@ -30,9 +30,9 @@ for iter=1:opts.maxiter
   W = sqGroupLasso(W, Y, X, XX, XY, U, opts); 
 
 	%subplot(2,1,1);
-	%imagesc(W');
-	subplot(3,3,iter);
-	imagesc(U);
+	imagesc(W');
+	%subplot(3,3,iter);
+	%imagesc(U);
 	colormap(gray);
 	norm(W-Wold,'fro')
 	pause;
