@@ -1,4 +1,4 @@
-function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
+function [Beta, obj, time, iter] = subgradDes( bw, Y, X, XX, XY, g_idx, option)
 
 %Y Centered Matrix: N by K
 %X Centered Matrix: N by J(p)
