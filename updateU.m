@@ -41,23 +41,23 @@ for iter=1:opts.maxiter_U
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%imagesc(U);
-%colormap(gray);
-%pause;
+U
 
-plot([1:opts.maxiter_U],R);
+%plot([1:opts.maxiter_U],R);
 %pause;
 
 % infer parents
-[vals idx] = max(U);
-U = zeros(size(U));
-U(sub2ind(size(U), idx, [1:K])) = 1;
-disp('Finished inferring new parents ....');
+if opts.norm == 'l1'
+	[vals idx] = max(U);
+	U = zeros(size(U));
+	U(sub2ind(size(U), idx, [1:K])) = 1;
+	disp('Finished inferring new parents ....');
+end
 
 norm(U-Uold,'fro')
 
-imagesc(U);
-colormap(gray);
+%imagesc(U);
+%colormap(gray);
 %pause;
 
 

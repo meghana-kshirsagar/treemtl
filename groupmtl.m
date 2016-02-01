@@ -24,6 +24,8 @@ end
 %load('synthetic_data/32tasks_2perclus_identical/synth_W.mat');
 disp('Finished centering data, initializing single task Ws..');
 
+%W = W + 0.010*randn(size(W));
+
 U = [];
 Tpa = numClus;
 if(Tpa > K)
@@ -39,9 +41,9 @@ end
 U = rand(Tpa, K);
 %U = 1/K*ones(Tpa, K);
 
-subplot(2,1,1);
+subplot(4,2,1);
 imagesc(W');
-subplot(2,1,2);
+subplot(4,2,2);
 imagesc(U);
 colormap(gray);
 pause;
@@ -49,14 +51,15 @@ W0=W;
 
 % call altmin
 opts=[];
-opts.maxiter=8;
-opts.lambda=0.0001;
+opts.maxiter=10;
+opts.lambda=0.1;
 opts.rho = 1*ones(Tpa,1);
+opts.mu=0.001;
 opts.norm = 'l2';
 % inner params
 opts.eta_U=1.0000e-05;
-opts.maxiter_U=1500;
-opts.maxiter_W=50000;
+opts.maxiter_U=3000;
+opts.maxiter_W=10000;
 [U W] = altmin(X, Y, W, U, opts);
 
 figure;

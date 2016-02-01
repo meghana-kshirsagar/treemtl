@@ -16,7 +16,7 @@ for task=1:K
   XY{task} = X{task}'*Y{task};
 end
 
-figure;
+%figure;
 obj=zeros(1,opts.maxiter);
 for iter=1:opts.maxiter
 	
@@ -29,10 +29,10 @@ for iter=1:opts.maxiter
 	% update W
   W = sqGroupLasso(W, Y, X, XX, XY, U, opts); 
 
-	%subplot(2,1,1);
+	subplot(4,2,2*iter+1);
 	imagesc(W');
-	%subplot(3,3,iter);
-	%imagesc(U);
+	subplot(4,2,2*iter+2);
+	imagesc(U);
 	colormap(gray);
 	norm(W-Wold,'fro')
 	pause;
@@ -44,7 +44,8 @@ for iter=1:opts.maxiter
   end
 	grpnorm = getGrpnorm(W, U, opts.rho, opts.norm);
 	fprintf('Iter: %d  lsqerr: %f  reg: %f   ',iter,sum(task_obj),opts.lambda*grpnorm);
-	obj(iter) = sum(task_obj) + opts.lambda*grpnorm; % + opts.lambda*sum(sum(abs(W)));
+	fprintf('L1 norm: %f  L12norm: %f  Fro-norm: %f\n',sum(sum(abs(W))),sum(sqrt(sum(W.^2,2))),norm(W,'fro'));
+	obj(iter) = sum(task_obj) + opts.lambda*grpnorm; % + opts.mu*sum(sum(abs(W)));
 	fprintf('Obj: %f\n',obj(iter));
 	disp('----------------------------');
 end

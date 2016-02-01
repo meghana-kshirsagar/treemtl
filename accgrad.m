@@ -41,7 +41,7 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
 				sumf = sum(featnorm,2); % size: num_grps x 1
 
 				for task=1:K
-					myg = find(g_idx(:,task)==1);
+					myg = find(g_idx(:,task)==max(g_idx(:,task)));
 					if option.norm == 'l1'
 	        	grad_bw(:,task) = XX{task}*bw(:,task) - XY{task} + C(myg)*bw(:,task) ./ featnorm(myg,:)'; 
 					else
@@ -53,14 +53,14 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
 
         bv=bw-eta*grad_bw; % compute update
         
-        %bx_new=sign(bv).*max(0,abs(bv)-lambda*eta); % soft-thresholding 
+        %bx_new=sign(bv).*max(0,abs(bv)-option.mu*eta); % soft-thresholding 
 				bx_new=bv;
                 
 				for task=1:K
 					task_obj = sum(sum((Y{task} - X{task}*bx_new(:,task)).^2))/2;
         	obj(iter) = obj(iter) + task_obj;
 				end
-				obj(iter) = obj(iter) + lambda*getGrpnorm(bx_new, g_idx, rho, option.norm); % + lambda*sum(sum(abs(bx_new)));
+				obj(iter) = obj(iter) + lambda*getGrpnorm(bx_new, g_idx, rho, option.norm); % + option.mu*sum(sum(abs(bx_new)));
         
         bw=bx_new;
         
@@ -81,8 +81,8 @@ function [Beta, obj, time, iter] = accgrad( bw, Y, X, XX, XY, g_idx, option)
     bw(abs(bw)<threshold) =0;
     Beta=bw;
     
-		plot([1:maxiter],obj);
-		pause;
+		%plot([1:iter],obj(1:iter));
+		%pause;
 
 
 end
