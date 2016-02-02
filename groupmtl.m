@@ -58,7 +58,7 @@ opts.norm = 'l2';
 % inner params
 opts.eta_U=1.0000e-05;
 opts.maxiter_U=5000;
-opts.maxiter_W=10000;
+opts.maxiter_W=30;
 [U W] = altmin(X, Y, W, U, opts);
 
 figure;

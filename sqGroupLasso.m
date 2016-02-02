@@ -4,5 +4,6 @@ function [Wnew] = sqGroupLasso(W, Y, X, XX, XY, U, opts)
   opts.tol=1e-6;
 	opts.eta=1e-5;
 	g_idx = U;
-  [Wnew, obj, time] = subgradDes(W, Y, X, XX, XY, g_idx, opts);
+  %[Wnew, obj, time, iter] = subgradDes(W, Y, X, XX, XY, g_idx, opts);
+  [Wnew, obj, time, iter] = coordinateProx(W, Y, X, XX, XY, g_idx, opts);
 end
