@@ -1,4 +1,4 @@
-function [Beta, obj, time, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
+function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 %U: n_group by K, group index
     
     if ~isfield(option, 'tol')
@@ -38,9 +38,8 @@ function [Beta, obj, time, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 
     tic
     obj=zeros(1,maxiter);
-    time=zeros(1,maxiter);
+    frac=zeros(1,maxiter);
 
-		grad_W = zeros(J, K);
     for iter=1:maxiter
 
 			for j=1:J		% feats
@@ -57,12 +56,16 @@ function [Beta, obj, time, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 					sqTerm = sqTerm(:) .* U(~zeroG,t) ./ sqtDenom(:) ;
 					gradR = 2 * W(j,t) * sum( lambdaG(~zeroG) .* (1 + sqTerm) );
 					
-					newW = W(j,t) - eta * (getGradL(j, t) + gradR);
+					newW = W(j,t) - eta * (getGradL(j, t) + gradR);			% take a step
 
 					softTh = sum(sqrt(sum(UWsq(notJ,:,zeroG), 2)), 1);  % zero groups
 					multiplier = 2 * sum( lambdaG(zeroG) .* softTh(:) .* sqrt(U(zeroG,t)) );
         	W(j,t) = sign(newW).*max(0,abs(newW) - multiplier*eta); % soft-thresholding 
                 
+					% update UWsq
+					myg = find(U(:,t)==1);
+					UWsq(j,t,myg) = W(j,t).^2 * U(myg,t);
+
         	%if ((iter==1 || mod(iter,1)==0))
 	           % fprintf('Iter %d: Obj: %g\n', iter, computeObj());    
   	      %end         
@@ -75,7 +78,9 @@ function [Beta, obj, time, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 
       end		% end feats loop
 
-	  	fprintf('Iter %d: Obj: %g\n', iter, computeObj());    
+			obj(iter) = computeObj();
+			frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
+	  	fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
 
     end
     
@@ -84,8 +89,12 @@ function [Beta, obj, time, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
     %W(abs(W)<option.threshold) =0;
     Beta=W;
     
-		%plot([1:iter],obj(1:iter));
-		%pause;
+		figure;
+		subplot(1,2,1);
+		plot([1:iter],obj(1:iter));
+		subplot(1,2,2);
+		plot([1:iter],frac(1:iter));
+		pause;
 
 
 end

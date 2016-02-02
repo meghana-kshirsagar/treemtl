@@ -42,7 +42,7 @@ U = rand(Tpa, K);
 %U = 1/K*ones(Tpa, K);
 
 subplot(4,2,1);
-imagesc(abs(W'));
+imagesc(abs(W));
 subplot(4,2,2);
 imagesc(U);
 colormap(gray);
@@ -50,15 +50,15 @@ W0=W;
 
 % call altmin
 opts=[];
-opts.maxiter=2;
-opts.lambda=1;
+opts.maxiter=3;
+opts.lambda=0.1;
 opts.rho = 1*ones(Tpa,1);
 opts.mu=0.001;
 opts.norm = 'l2';
 % inner params
 opts.eta_U=1.0000e-05;
 opts.maxiter_U=5000;
-opts.maxiter_W=30;
+opts.maxiter_W=300;
 [U W] = altmin(X, Y, W, U, opts);
 
 figure;

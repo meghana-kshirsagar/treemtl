@@ -23,14 +23,14 @@ for iter=1:opts.maxiter
 	% update U
 	%save('workspace_good.mat','U','W','opts');
 	U = updateU(W, U, opts);
-	fprintf('Finished updating U.... \n Now updating W...');
+	fprintf('Finished updating U.... \n Now updating W...\n');
 
 	Wold=W;
 	% update W
   W = sqGroupLasso(W, Y, X, XX, XY, U, opts); 
 
 	subplot(4,2,2*iter+1);
-	imagesc(abs(W'));
+	imagesc(abs(W));
 	subplot(4,2,2*iter+2);
 	imagesc(U);
 	colormap(gray);
