@@ -66,35 +66,31 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 					myg = find(U(:,t)==1);
 					UWsq(j,t,myg) = W(j,t).^2 * U(myg,t);
 
-        	%if ((iter==1 || mod(iter,1)==0))
-	           % fprintf('Iter %d: Obj: %g\n', iter, computeObj());    
-  	      %end         
-         
-    	    %if (iter>10 && (abs(obj(iter)-obj(iter-1))/abs(obj(iter-1))<tol)) %increasing
-      	   %   break;
-        	%end        
-
 				end 	% end task loop
 
       end		% end feats loop
 
 			obj(iter) = computeObj();
 			frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
-	  	fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
+	  	%fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
+
+    	    if (iter>1 && (obj(iter)-obj(iter-1))/obj(iter-1) > 1e-4) %increasing
+      	     break;
+        	end        
 
     end
     
-	  fprintf('Iter %d: Obj: %g\n', iter, computeObj());    
+	  fprintf('[COORDINATE-DES] Iter %d: Obj: %g\n', iter, computeObj());    
     
     %W(abs(W)<option.threshold) =0;
     Beta=W;
     
-		figure;
-		subplot(1,2,1);
-		plot([1:iter],obj(1:iter));
-		subplot(1,2,2);
-		plot([1:iter],frac(1:iter));
-		pause;
+		%figure;
+		%subplot(1,2,1);
+		%plot([1:iter],obj(1:iter));
+		%subplot(1,2,2);
+		%plot([1:iter],frac(1:iter));
+		%pause;
 
 
 end

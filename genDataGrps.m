@@ -11,7 +11,7 @@ end
 
 W=zeros(K,J);
 
-numClus=3;
+numClus=10;
 fCount = J/numClus;
 ntasks = K/numClus;
 featIdx=0;
@@ -20,9 +20,9 @@ for clus=1:numClus
 	featIdx=featIdx+fCount; %-20; % change here to produce overlapping clusters
 end
 
-%W = W + 0.050*randn(size(W));
+%W = W + 0.10*randn(size(W));
 
-imagesc(W);
+imagesc(W');
 colormap(gray);
 
 W=W';

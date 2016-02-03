@@ -1,5 +1,5 @@
 
-function [U W rho] = groupmtl(taskFiles, numClus)
+function [U W] = groupmtl(taskFiles, numClus)
 
 K = length(taskFiles);
 % load data
@@ -21,7 +21,7 @@ for t=1:K
 	%W(:,t) = X{t} \ Y{t};
 	W(:,t) = ridge(Y{t}, X{t}, 1);
 end
-%load('synthetic_data/32tasks_2perclus_identical/synth_W.mat');
+%W = randn(J,K);
 disp('Finished centering data, initializing single task Ws..');
 
 %W = W + 0.010*randn(size(W));
@@ -41,24 +41,25 @@ end
 U = rand(Tpa, K);
 %U = 1/K*ones(Tpa, K);
 
-subplot(4,2,1);
+subplot(3,2,1);
 imagesc(abs(W));
-subplot(4,2,2);
+subplot(3,2,2);
 imagesc(U);
 colormap(gray);
 W0=W;
 
 % call altmin
 opts=[];
-opts.maxiter=3;
-opts.lambda=0.1;
+opts.maxiter=1;
+opts.lambda=1;
 opts.rho = 1*ones(Tpa,1);
-opts.mu=0.001;
+opts.mu=0.01;
 opts.norm = 'l2';
 % inner params
 opts.eta_U=1.0000e-05;
 opts.maxiter_U=5000;
 opts.maxiter_W=300;
+ 
 [U W] = altmin(X, Y, W, U, opts);
 
 figure;

@@ -3,7 +3,6 @@ function [U W] = altmin(X, Y, W0, U0, opts)
 
 % X: 			centered data: cell array size K, each element Nt by J
 % Y: 			cell array size K, each element vector size Nt
-% rho: 		size: N_nleaf. Has regularization param of each inner node. 
 
 U = U0;
 W = W0;
@@ -16,26 +15,32 @@ for task=1:K
   XY{task} = X{task}'*Y{task};
 end
 
+	function fval = getFusion()
+		fval=0;	
+    for t=1:K
+      fval = fval + sum( sum( (repmat(U(:,t),(t-1),1) - U(:,[1:t-1])).^2 )) ;
+    end		
+	end
+
 %figure;
 obj=zeros(1,opts.maxiter);
 for iter=1:opts.maxiter
 	
 	% update U
-	%save('workspace_good.mat','U','W','opts');
-	U = updateU(W, U, opts);
+	U = updateU_fusion(W, U, opts);
 	fprintf('Finished updating U.... \n Now updating W...\n');
 
 	Wold=W;
 	% update W
   W = sqGroupLasso(W, Y, X, XX, XY, U, opts); 
 
-	subplot(4,2,2*iter+1);
+	subplot(3,2,2*iter+1);
 	imagesc(abs(W));
-	subplot(4,2,2*iter+2);
+	subplot(3,2,2*iter+2);
 	imagesc(U);
 	colormap(gray);
 	pause;
-	norm(W-Wold,'fro')
+	fprintf('Change in W: %f\n',norm(W-Wold,'fro'));
 
 	% print objective
   for task=1:K
@@ -43,13 +48,15 @@ for iter=1:opts.maxiter
 		%fprintf('[Task %d] sq.err: %f\n',task,task_obj);
   end
 	grpnorm = getGrpnorm(W, U, opts.rho, opts.norm);
-	fprintf('Iter: %d  lsqerr: %f  reg: %f   ',iter,sum(task_obj),opts.lambda*grpnorm);
+	fusion = getFusion();
+	fprintf('[GLOBAL] Iter: %d  lsqerr: %f  reg: %f  fusion: %f\n', iter, sum(task_obj), opts.lambda*grpnorm, opts.mu*fusion);
 	fprintf('L1 norm: %f  L12norm: %f  Fro-norm: %f\n',sum(sum(abs(W))),sum(sqrt(sum(W.^2,2))),norm(W,'fro'));
-	obj(iter) = sum(task_obj) + opts.lambda*grpnorm; % + opts.mu*sum(sum(abs(W)));
+	obj(iter) = sum(task_obj) + opts.lambda*grpnorm + opts.mu*fusion;
 	fprintf('Obj: %f\n',obj(iter));
 	disp('----------------------------');
+
 end
 
 
 
-
+end % -- end function

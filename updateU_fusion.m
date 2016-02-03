@@ -1,4 +1,4 @@
-function [U] = updateU(W, U, opts)
+function [U] = updateU_fusion(W, U, opts)
 
 [J K] = size(W); % J: number of features, K: number of tasks
 Tpa = size(U,1);
@@ -28,6 +28,11 @@ for iter=1:opts.maxiter_U
 				else
 	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.rho(p) * getGrpnorm(W,sqrt(U(p,:)),1,'l1');
 				end
+
+				% do fusion update
+				for t=1:K
+					grad_u(p,t) = grad_u(p,t) + opts.mu * ( 2 * sum(U(p,t)-U(p,[1:t-1])) + 2 * sum(U(p,[t+1:K])-U(p,t)) );
+				end
     end
 
     U_new = U - eta*grad_u;
@@ -51,16 +56,16 @@ end
 
 %U
 
-%plot([1:iter],R(1:iter));
-%pause;
+plot([1:iter],R(1:iter));
+pause;
 
 % infer parents
-if opts.norm == 'l1'
+%if opts.norm == 'l1'
 	[vals idx] = max(U);
 	U = zeros(size(U));
 	U(sub2ind(size(U), idx, [1:K])) = 1;
 	disp('Finished inferring new parents ....');
-end
+%end
 
 fprintf('Change in U: %f\n',norm(U-Uold,'fro'));
 
