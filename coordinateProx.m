@@ -5,7 +5,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
         option.tol=1e-7;
     end
     if ~isfield(option, 'threshold')
-        option.threshold=1e-4;
+        option.threshold=1e-7;
     end  
 		maxiter = option.maxiter_W;
 		lambda = option.lambda;
@@ -74,7 +74,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 			frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
 	  	%fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
 
-    	    if (iter>1 && (obj(iter)-obj(iter-1))/obj(iter-1) > 1e-4) %increasing
+    	    if (iter>2 && ((obj(iter)-obj(iter-1))/obj(iter-1) > 1e-4 || abs(obj(iter)-obj(iter-1))/obj(iter-1) < option.threshold)) %increasing
       	     break;
         	end        
 
@@ -82,7 +82,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
     
 	  fprintf('[COORDINATE-DES] Iter %d: Obj: %g\n', iter, computeObj());    
     
-    %W(abs(W)<option.threshold) =0;
+    %W(abs(W)<option.cutoff) =0;
     Beta=W;
     
 		%figure;

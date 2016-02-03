@@ -43,9 +43,9 @@ for iter=1:opts.maxiter_U
 		R(iter) = getGrpnorm(W,sqrt(U),opts.rho(1:Tpa),opts.norm);
 		%fprintf('R(U): %f\n',R(iter));
 
-		%if (iter>1 && (((R(iter)-R(iter-1))/R(iter-1) > 1e-4) || abs(R(iter)-R(iter-1))/R(iter-1) < threshold))
-		%	break
-		%end
+		if (iter>10 && (((R(iter)-R(iter-1))/R(iter-1) > 1e-4) || abs(R(iter)-R(iter-1))/R(iter-1) < threshold))
+			break
+		end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 

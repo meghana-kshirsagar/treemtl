@@ -11,7 +11,7 @@ end
 
 W=zeros(K,J);
 
-numClus=10;
+numClus=3;
 fCount = J/numClus;
 ntasks = K/numClus;
 featIdx=0;

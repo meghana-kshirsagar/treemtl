@@ -7,9 +7,10 @@ Wsq = W.^2;
 eta = opts.eta_U;
 Uold = U;
 
+%U = rand(size(U));
+
 threshold = 1e-7;
 
-figure;
 %%%%%% outer loop %%%%%%
 for iter=1:opts.maxiter_U
     grad_u=zeros(size(U));
@@ -31,7 +32,7 @@ for iter=1:opts.maxiter_U
 
 				% do fusion update
 				for t=1:K
-					grad_u(p,t) = grad_u(p,t) + opts.mu * ( 2 * sum(U(p,t)-U(p,[1:t-1])) + 2 * sum(U(p,[t+1:K])-U(p,t)) );
+					grad_u(p,t) = opts.lambda * grad_u(p,t) + opts.mu * ( 2 * sum(U(p,t)-U(p,[1:t-1])) + 2 * sum(U(p,[t+1:K])-U(p,t)) );
 				end
     end
 
@@ -45,7 +46,7 @@ for iter=1:opts.maxiter_U
     U = U_new;
 
 		% print R(U)
-		R(iter) = getGrpnorm(W,sqrt(U),opts.rho(1:Tpa),opts.norm);
+		R(iter) = opts.lambda * getGrpnorm(W,sqrt(U),opts.rho(1:Tpa),opts.norm) + opts.mu * getFusion(U,K);
 		%fprintf('R(U): %f\n',R(iter));
 
 		%if (iter>1 && (((R(iter)-R(iter-1))/R(iter-1) > 1e-4) || abs(R(iter)-R(iter-1))/R(iter-1) < threshold))
@@ -56,20 +57,21 @@ end
 
 %U
 
-plot([1:iter],R(1:iter));
-pause;
+fprintf('Last few R(U): '); fprintf(' %f ',R(iter-10:iter));
+%plot([1:iter],R(1:iter));
+%pause;
 
 % infer parents
-%if opts.norm == 'l1'
+if opts.norm == 'l1'
 	[vals idx] = max(U);
 	U = zeros(size(U));
 	U(sub2ind(size(U), idx, [1:K])) = 1;
 	disp('Finished inferring new parents ....');
-%end
+end
 
-fprintf('Change in U: %f\n',norm(U-Uold,'fro'));
+fprintf('\nChange in U: %f\n',norm(U-Uold,'fro'));
 
-%figure;
+figure;
 imagesc(U);
 colormap(gray);
 pause;
