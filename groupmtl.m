@@ -1,10 +1,9 @@
 
-function [U W] = groupmtl(taskFiles, numClus)
+function [U W objVal] = groupmtl(taskFiles, numClus, params)
 
 K = length(taskFiles);
 % load data
 for t=1:K
-	disp(taskFiles{t});
 	load(taskFiles{t});
 	X{t} = data.X;
 	Y{t} = data.Y;
@@ -19,12 +18,10 @@ for t=1:K
   Y{t} = (Y{t}-ones(N,1)*mean(Y{t},1));
   X{t} = (X{t}-ones(N,1)*mean(X{t},1));
 	%W(:,t) = X{t} \ Y{t};
-	W(:,t) = ridge(Y{t}, X{t}, 1);
+	W(:,t) = ridge(Y{t}, X{t}, 100);
 end
 %W = randn(J,K);
 disp('Finished centering data, initializing single task Ws..');
-
-%W = W + 0.010*randn(size(W));
 
 U = [];
 Tpa = numClus;
@@ -41,27 +38,31 @@ end
 U = rand(Tpa, K);
 %U = 1/K*ones(Tpa, K);
 
-%figure;
-subplot(5,2,1);
-imagesc(abs(W));
-subplot(5,2,2);
-imagesc(U);
-colormap(gray);
 W0=W;
 
 % call altmin
 opts=[];
-opts.maxiter=4;
-opts.lambda=0.1;
-opts.rho = 1*ones(Tpa,1);
-opts.mu=0.01;
+opts.maxiter=1;
+opts.lambda=1;
+opts.mu=0.1;
 opts.norm = 'l2';
+opts.rho = 1*ones(Tpa,1);
 % inner params
 opts.eta_U=1.0000e-05;
 opts.maxiter_U=5000;
 opts.maxiter_W=300;
+
+if isfield(params, 'lambda')
+	opts.lambda=params.lambda;
+end
+if isfield(params, 'mu')
+	opts.mu=params.mu;
+end
+if isfield(params, 'norm')
+	opts.norm=params.norm;
+end
  
-[U W] = altmin(X, Y, W, U, opts);
+[U W objVal] = altmin(X, Y, W, U, opts);
 
 %figure;
 %subplot(2,1,1);

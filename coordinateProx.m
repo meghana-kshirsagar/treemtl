@@ -72,7 +72,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 
 			obj(iter) = computeObj();
 			frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
-	  	%fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
+	  	fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
 
     	    if (iter>2 && ((obj(iter)-obj(iter-1))/obj(iter-1) > 1e-4 || abs(obj(iter)-obj(iter-1))/obj(iter-1) < option.threshold)) %increasing
       	     break;
