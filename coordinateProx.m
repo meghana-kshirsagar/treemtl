@@ -63,7 +63,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
         	W(j,t) = sign(newW).*max(0,abs(newW) - multiplier*eta); % soft-thresholding 
                 
 					% update UWsq
-					myg = find(U(:,t)==1);
+					[temp myg] = max(U(:,t));
 					UWsq(j,t,myg) = W(j,t).^2 * U(myg,t);
 
 				end 	% end task loop
@@ -74,7 +74,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 			frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
 	  	fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
 
-    	    if (iter>2 && ((obj(iter)-obj(iter-1))/obj(iter-1) > 1e-4 || abs(obj(iter)-obj(iter-1))/obj(iter-1) < option.threshold)) %increasing
+    	    if (iter>2 && ((obj(iter)-obj(iter-1))/obj(iter-1) > 1e-5 || abs(obj(iter)-obj(iter-1))/obj(iter-1) < option.threshold)) %increasing
       	     break;
         	end        
 

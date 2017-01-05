@@ -67,7 +67,7 @@ function [Beta, obj, time, iter] = subgradDes( bw, Y, X, XX, XY, g_idx, option)
         time(iter)=toc;
         
         %if ((iter==1 || mod(iter,1)==0))
-        %    fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
+            fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
         %end         
          
         if (iter>10 && (abs(obj(iter)-obj(iter-1))/abs(obj(iter-1))<tol)) %increasing

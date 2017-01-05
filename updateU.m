@@ -16,6 +16,7 @@ for iter=1:opts.maxiter_U
     % compute gradient w.r.t Upt.. note: 0 is a subgradient
     for p = 1:Tpa
     		denom = sqrt(sum(power(repmat(sqrt(U(p,:)),J,1).*W, 2), 2));  % denom: Jx1
+				denomcpy = denom;
     		for t=1:K
     			numer = Wsq(:,t);  % numer: Jx1 
     			numer(denom==0)=0;
@@ -26,7 +27,7 @@ for iter=1:opts.maxiter_U
 				if opts.norm == 'l1'
 	    		grad_u(p,:) = grad_u(p,:) * opts.rho(p);
 				else
-	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.rho(p) * getGrpnorm(W,sqrt(U(p,:)),1,'l1');
+	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.rho(p) * sum(denomcpy);    %getGrpnorm(W,sqrt(U(p,:)),1,'l1');
 				end
     end
 
@@ -41,9 +42,10 @@ for iter=1:opts.maxiter_U
 
 		% print R(U)
 		R(iter) = getGrpnorm(W,sqrt(U),opts.rho(1:Tpa),opts.norm);
-		%fprintf('R(U): %f\n',R(iter));
+		fprintf('Iter %d R(U): %f\n',iter,R(iter));
 
 		if (iter>10 && (((R(iter)-R(iter-1))/R(iter-1) > 1e-4) || abs(R(iter)-R(iter-1))/R(iter-1) < threshold))
+			fprintf('Breaking\n');
 			break
 		end
 end
