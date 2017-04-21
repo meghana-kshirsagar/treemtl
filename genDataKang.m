@@ -1,3 +1,4 @@
+% genDataKang(30,21,15,3)
 
 function genDataGrps(K, J, N, numClus)
 
@@ -11,15 +12,16 @@ end
 
 W=zeros(K,J);
 
-fCount = J/numClus;
+fCount = J; %/numClus;
 ntasks = K/numClus;
 featIdx=0;
 for clus=1:numClus
 	stTask=(clus-1)*ntasks+1;
 	endTask=clus*ntasks;
-	w=0.5+rand(1,fCount);
+	w=rand(1,fCount); % +0.5
 	for tt=stTask:endTask
-		W(tt,featIdx+1:featIdx+fCount) = (rand(1))*w;
+		%W(tt,featIdx+1:featIdx+fCount) = (rand(1))*w;
+		W(tt,:) = rand(1)*w;
 	end
 	featIdx=featIdx+fCount-0; % change here to produce overlapping clusters
 end

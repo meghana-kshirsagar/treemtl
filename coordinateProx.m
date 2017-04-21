@@ -60,7 +60,7 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 
 					softTh = sum(sqrt(sum(UWsq(notJ,:,zeroG), 2)), 1);  % zero groups
 					multiplier = 2 * sum( lambdaG(zeroG) .* softTh(:) .* sqrt(U(zeroG,t)) );
-        	W(j,t) = sign(newW).*max(0,abs(newW) - multiplier*eta); % soft-thresholding 
+		        	W(j,t) = sign(newW).*max(0,abs(newW) - multiplier*eta); % soft-thresholding 
                 
 					% update UWsq
 					[temp myg] = max(U(:,t));
@@ -70,13 +70,15 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
 
       end		% end feats loop
 
-			obj(iter) = computeObj();
-			frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
-	  	fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
+		obj(iter) = computeObj();
+		frac(iter) = mean(sum(abs(W)<1e-4)./J)*100;
+		if(mod(iter,1000)==0)
+	  		fprintf('Iter %d: Obj: %g Sparsity: %f\n', iter, obj(iter),frac(iter));    
+		end
 
-    	    if (iter>2 && ((obj(iter)-obj(iter-1))/obj(iter-1) > 1e-5 || abs(obj(iter)-obj(iter-1))/obj(iter-1) < option.threshold)) %increasing
-      	     break;
-        	end        
+	    if (iter>2 && ((obj(iter)-obj(iter-1))/obj(iter-1) > 1e-5 || abs(obj(iter)-obj(iter-1))/obj(iter-1) < option.threshold)) %increasing
+  	     	break;
+    	end        
 
     end
     
@@ -85,12 +87,4 @@ function [Beta, obj, iter] = coordinateProx( W, Y, X, XX, XY, U, option)
     %W(abs(W)<option.cutoff) =0;
     Beta=W;
     
-		%figure;
-		%subplot(1,2,1);
-		%plot([1:iter],obj(1:iter));
-		%subplot(1,2,2);
-		%plot([1:iter],frac(1:iter));
-		%pause;
-
-
 end

@@ -1,5 +1,5 @@
 
-function [U W objVal] = altmin(X, Y, W0, U0, opts)
+function [U W objVal] = altmin(X, Y, Xtest, Ytest, W0, U0, opts)
 
 % X: 			centered data: cell array size K, each element Nt by J
 % Y: 			cell array size K, each element vector size Nt
@@ -19,46 +19,52 @@ end
 for task=1:K
   task_obj(task) = sum(sum((Y{task} - X{task}*W(:,task)).^2))/2;
 end
-fprintf('Initial sqerr: %f\n',sum(task_obj));
+fprintf('[ALTMIN] Initial sqerr: %f\n',sum(task_obj));
 
 %figure;
 obj=zeros(1,opts.maxiter);
 for iter=1:opts.maxiter
-	
+
 	% update U
 	%if opts.type == 'fusion'
-		%U = updateU_fusion(W, U, opts);
+		[U change] = updateU_fusion(W, U, opts);
+		if(change<=1e-3)
+			break;
+		end
 	%else
-	U = updateU(W, U, opts);
+	%U = updateU(W, U, opts);
 	fprintf('Finished updating U.... \n Now updating W...\n');
 
 	Wold=W;
 	% update W
-  W = sqGroupLasso(W, Y, X, XX, XY, U, opts); 
+  	W = sqGroupLasso(W, Y, X, Ytest, Xtest, XX, XY, U, opts); 
 
-	%subplot(5,2,2*iter+1);
-	%imagesc(abs(W));
-	%subplot(5,2,2*iter+2);
-	%imagesc(U);
-	%colormap(gray);
-	%pause;
 	fprintf('Change in W: %f\n',norm(W-Wold,'fro'));
 
 	% print objective
-  for task=1:K
-    task_obj(task) = sum(sum((Y{task} - X{task}*W(:,task)).^2))/2;
+	for task=1:K
+    	task_obj(task) = sum(sum((Y{task} - X{task}*W(:,task)).^2))/2;
 		%fprintf('[Task %d] sq.err: %f\n',task,task_obj);
-  end
+	end
 	grpnorm = getGrpnorm(W, U, opts.rho, opts.norm);
 	fusion = getFusion(U,K);
-	fprintf('[GLOBAL] Iter: %d  lsqerr: %f  reg: %f  fusion: %f\n', iter, sum(task_obj), opts.lambda*grpnorm, opts.mu*fusion);
-	%fprintf('L1 norm: %f  L12norm: %f  Fro-norm: %f\n',sum(sum(abs(W))),sum(sqrt(sum(W.^2,2))),norm(W,'fro'));
+	fprintf('[GLOBAL] Lambda: %f Mu: %f Iter: %d  lsqerr: %f  reg: %f  fusion: %f\n', opts.lambda, opts.mu, iter, sum(task_obj), opts.lambda*grpnorm, opts.mu*fusion);
 	obj(iter) = sum(task_obj) + opts.lambda*grpnorm + opts.mu*fusion;
-	fprintf('[GLOBAL] Obj: %f\n',obj(iter));
+	fprintf('[GLOBAL] Lambda: %f Mu: %f Obj: %f\n',opts.lambda,opts.mu,obj(iter));
 	disp('----------------------------');
 
 end
 
 objVal = obj(iter);
+
+nex=200;
+for t=1:K
+	Ypred = Xtest{t}(1:nex,:) * W(:,t); 
+	mse(t) = sum((Ypred-Ytest{t}(1:nex)).^2)/size(Ypred,1);
+	r2(t) = rsquare(Ypred,Ytest{t}(1:nex));
+	disp(sprintf('Lambda: %g Mu: %g CV Task-%d Test-MSE: %f R2: %g',opts.lambda,opts.mu,t,mse(t),r2(t)));
+end
+disp(sprintf('Lambda: %g Mu: %g CV Avg Test-MSE: %f R2: %g',opts.lambda,opts.mu,mean(mse),mean(r2)));
+
 
 end % -- end function

@@ -1,4 +1,4 @@
-function [Beta, obj, time, iter] = subgradDes( bw, Y, X, XX, XY, g_idx, option)
+function [Beta, obj, time, iter] = subgradDes( bw, Y, X, Ytest, Xtest, XX, XY, g_idx, option)
 
 %Y Centered Matrix: N by K
 %X Centered Matrix: N by J(p)
@@ -57,18 +57,31 @@ function [Beta, obj, time, iter] = subgradDes( bw, Y, X, XX, XY, g_idx, option)
 				bx_new=bv;
                 
 				for task=1:K
-					task_obj = sum(sum((Y{task} - X{task}*bx_new(:,task)).^2))/2;
-        	obj(iter) = obj(iter) + task_obj;
+					task_obj = sum((Y{task} - X{task}*bx_new(:,task)).^2)/2;
+        			obj(iter) = obj(iter) + task_obj;
+				end
+
+        		if ((iter==1 || mod(iter,10)==0))
+					%fprintf('Training lsqerr: %f\n',obj(iter));
 				end
 				obj(iter) = obj(iter) + lambda*getGrpnorm(bx_new, g_idx, rho, option.norm); % + option.mu*sum(sum(abs(bx_new)));
         
         bw=bx_new;
         
         time(iter)=toc;
+
+%        if ((iter==1 || mod(iter,200)==0))
+%				for task=1:K
+%					Ypred = Xtest{task} * bx_new(:,task); 
+%					mse(task) = sum((Ypred-Ytest{task}).^2)/size(Ypred,1);
+%					disp(sprintf('Task %d Test-MSE: %f',task,mse(task)));
+%				end
+%				disp(sprintf('Avg Test-MSE: %f',mean(mse)));
+%		end
         
-        %if ((iter==1 || mod(iter,1)==0))
+        if ((iter==1 || mod(iter,500)==0))
             fprintf('Iter %d: Obj: %g\n', iter, obj(iter));    
-        %end         
+        end         
          
         if (iter>10 && (abs(obj(iter)-obj(iter-1))/abs(obj(iter-1))<tol)) %increasing
             break;

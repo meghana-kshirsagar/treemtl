@@ -1,6 +1,4 @@
-function [U] = updateU_fusion(W, U, opts)
-
-disp('Fusion ...');
+function [U change] = updateU_fusion(W, U, opts)
 
 [J K] = size(W); % J: number of features, K: number of tasks
 Tpa = size(U,1);
@@ -11,12 +9,14 @@ Uold = U;
 
 threshold = 1e-7;
 
+%figure;
 %%%%%% outer loop %%%%%%
 for iter=1:opts.maxiter_U
     grad_u=zeros(size(U));
     % compute gradient w.r.t Upt.. note: 0 is a subgradient
     for p = 1:Tpa
     		denom = sqrt(sum(power(repmat(sqrt(U(p,:)),J,1).*W, 2), 2));  % denom: Jx1
+				denomcpy = denom;
     		for t=1:K
     			numer = Wsq(:,t);  % numer: Jx1 
     			numer(denom==0)=0;
@@ -27,13 +27,13 @@ for iter=1:opts.maxiter_U
 				if opts.norm == 'l1'
 	    		grad_u(p,:) = grad_u(p,:) * opts.rho(p);
 				else
-	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.rho(p) * getGrpnorm(W,sqrt(U(p,:)),1,'l1');
+	    		grad_u(p,:) = grad_u(p,:) * 2 * opts.rho(p) * sum(denomcpy);    %getGrpnorm(W,sqrt(U(p,:)),1,'l1');
 				end
 
-				% do fusion update
-				for t=1:K
-					grad_u(p,t) = opts.lambda * grad_u(p,t) + opts.mu * ( 2 * sum(U(p,t)-U(p,[1:t-1])) + 2 * sum(U(p,[t+1:K])-U(p,t)) );
-				end
+        % do fusion update
+        for t=1:K
+          grad_u(p,t) = opts.lambda * grad_u(p,t) + opts.mu * ( 2 * sum(U(p,t)-U(p,[1:t-1])) + 2 * sum(U(p,[t+1:K])-U(p,t)) );
+        end
     end
 
     U_new = U - eta*grad_u;
@@ -47,9 +47,13 @@ for iter=1:opts.maxiter_U
 
 		% print R(U)
 		R(iter) = opts.lambda * getGrpnorm(W,sqrt(U),opts.rho(1:Tpa),opts.norm) + opts.mu * getFusion(U,K);
-		%fprintf('R(U): %f\n',R(iter));
+		if(iter==1 || mod(iter,100)==0)
+			fprintf('Iter %d R(U): %f\n',iter,R(iter));
+			%grad_u
+		end
 
-		if (iter>5 && (((R(iter)-R(iter-1))/R(iter-1) > 1e-4))) % || abs(R(iter)-R(iter-1))/R(iter-1) < threshold))
+		if (iter>10 && (((R(iter)-R(iter-1))/R(iter-1) > 1e-4) || abs(R(iter)-R(iter-1))/R(iter-1) < threshold))
+			fprintf('Breaking\n');
 			break
 		end
 end
@@ -57,7 +61,6 @@ end
 
 %U
 
-fprintf('Last few R(U): '); fprintf(' %f ',R(iter-10:iter));
 %plot([1:iter],R(1:iter));
 %pause;
 
@@ -69,7 +72,10 @@ fprintf('Last few R(U): '); fprintf(' %f ',R(iter-10:iter));
 	disp('Finished inferring new parents ....');
 %end
 
-fprintf('\nChange in U: %f\n',norm(U-Uold,'fro'));
+U'
+
+change=norm(U-Uold,'fro');
+fprintf('Iter: %d, Change in U: %f\n',iter,change);
 
 %figure;
 %imagesc(U);
