@@ -6,9 +6,13 @@ Running the code:
 groupmtl(taskNames,taskFiles, testFiles, numClus, params)
 
 taskNames: cell array with names of tasks, will be used while displaying results
+
 taskFiles: cell array with paths to csv files containing training data
+
 testFiles: cell array with paths to csv files containing test data
+
 numClus:   number of clusters to assume. Run with a value that is about half the number of tasks.
+
 params:    struct containing parameters used in optimization
 
 taskNames, taskFiles, testFiles are all of size 'number of tasks'
