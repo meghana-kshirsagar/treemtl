@@ -7,9 +7,9 @@ groupmtl(taskNames,taskFiles, testFiles, numClus, params)
 
 taskNames: cell array with names of tasks, will be used while displaying results
 
-taskFiles: cell array with paths to csv files containing training data
+taskFiles: cell array with paths to .mat/.csv files containing training data
 
-testFiles: cell array with paths to csv files containing test data
+testFiles: cell array with paths to .mat/.csv files containing test data
 
 numClus:   number of clusters to assume. Run with a value that is about half the number of tasks.
 
@@ -34,9 +34,9 @@ Running the code on the Merck dataset:
 
 for t=1:15
 
-   taskFiles{t}=sprintf('merckdata/scaled/sampled/task%d_train.csv',t);
+   taskFiles{t}=sprintf('merckdata/scaled/all/task%d.mat',t);
    
-   testFiles{t}=sprintf('merckdata/scaled/sampled/task%d_test.csv',t);
+   splitFiles{t}=sprintf('merckdata/scaled/all/task%d_split%d.txt',t,split);
    
 end
 
@@ -44,6 +44,6 @@ params=[];
 
 taskNames=[1:15];
 
-groupmtl_merck(taskNames,taskFiles, testFiles, 7, params)
+groupmtl_merck_splits(taskNames,taskFiles, splitsFiles, 7, params)
 
 
